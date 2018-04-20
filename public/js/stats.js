@@ -1,6 +1,6 @@
 /**
  * Page Timing to WS
- * 
+ *
  */
 
 var errorList = [];
@@ -70,13 +70,13 @@ jQuery(document).contents().filter(function(){
      }
      });
     return out;
-    
+
 }//fx
 
-//if(!sc_info)  if(typeof sc_info === 'undefined' || sc_info) 
+//if(!sc_info)  if(typeof sc_info === 'undefined' || sc_info)
 if(typeof sc_info === 'undefined') sc_info={};
 
-//jQuery(document).ready(function($){ 
+//jQuery(document).ready(function($){
 jQuery(window).load(function($){
 sc_info=addCacheComments(sc_info);
 
@@ -95,7 +95,7 @@ var cookies=getCookies();
 //var ws_cookie=JSON.stringify( cookies );
 //var ws_performance=JSON.stringify( window.performance )
 
-var now_utc = new Date().toISOString();   // this is in UTC 
+var now_utc = new Date().toISOString();   // this is in UTC
 
 var is_cf=false;
 if(window.CloudFlare){
@@ -133,7 +133,7 @@ var ws_stats={
   console.log("Response/Server/PHP-time: " + (performance.timing.responseEnd - performance.timing.requestStart) );
   console.log("User-perceived page loading time: " + page_load_time);
 */
-//next step: POST to stats.ws.com.. 
+//next step: POST to stats.ws.com..
 
 if(!botCheck()){
         jQuery.ajax({
@@ -144,7 +144,7 @@ if(!botCheck()){
         'Content-Type':'application/json'
     },
 */
-            url: 'https://stats.wierstewarthosting.com/browser/api/index.php',    //might have to post to wp-plugin.. or this is a script called from stats. :( 
+            url: 'https://stats.wierstewarthosting.com/browser/api/',    //might have to post to wp-plugin.. or this is a script called from stats. :(
             crossDomain: true,
             data: "stats="+JSON.stringify( ws_stats ),
             dataType: 'json',
@@ -164,7 +164,7 @@ console.log("Sry, you look like a bot");
 
 /**
  * User-Actions to GA
- * 
+ *
  */
 
 /*
@@ -191,7 +191,7 @@ var clickTrack = [
 //var scrollTrack = []; //integrate into scroll-checker
 
 
-function addTracking($,gaObjName,selector,category){ //should also work for 
+function addTracking($,gaObjName,selector,category){ //should also work for
 	//check if ga exist - otherwise links die.
 	$(selector).each(function() {
 		console.log('adding:',selector);//category,action,label)
