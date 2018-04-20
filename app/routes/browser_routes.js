@@ -6,61 +6,67 @@ var json2csv = require('json2csv').parse;
 var newLine= "\r\n";
 
 module.exports = function(app, db) {
-  app.get('/browser', (req, res) => {
-    // You'll create your note here.
-    res.send('Hello')
-  });
+
+    app.get('/browser', (req, res) => {
+        res.send('Browser Stats is Functional.')
+    });
 
     app.get('/browser/js/stats.js', function(req, res) {
         res.sendFile(path.join(__dirname + '/../../public/js/stats.js'));
     });
 
-  app.post('/browser/api', (req, res, next_route_match) => {    //next_route_match will be less specific than this; good luck.
-    // jQuery.ajax is sending: Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-
-    res.send(req.body); //fire back, closes cxxn.
-
-    //Continue parsing..
-    //.then( preParse )
-    var posted_obj = {};
-    var posted_str = '';
-    try{
-        if( typeof req.body.stats == "string") posted_str = req.body.stats; // .body.substring(1,req.body.length-1)
-        else posted_str =  Object.keys( req.body )[0]; //Alternate, if req.body.stats isn't set?
-        posted_obj = JSON.parse( posted_str );
-    }catch(error) {
-        console.log("JSON Parsing error:", req.body , error);
-    }
-
-    //.then( saveJSON ) //backup
-    let datestring = new Date().toJSON().replace('T','-').replace('Z','').replace(/:/g,'_'); // 2018-04-19-22:03:17.905500
-    let json_filename = path.join(__dirname + '/../log/ajax-'+datestring+'.log');
-    fs.writeFile(json_filename, posted_str, function (err, stat) {
-        if (err) throw err;
-        console.log('file saved');
+    app.use(function(req, res, next) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
     });
 
-//PHP: $file_result=file_put_contents('../log/ajax-'.$datestring.'.log',$ajax_post);
+    app.post('/browser/api', (req, res, next_route_match) => {    //next_route_match will be less specific than this; good luck.
+        // jQuery.ajax is sending: Content-Type: application/x-www-form-urlencoded; charset=UTF-8
 
-    //.then( forRealParse:Raw )
-    const parsedForRawCSV = parsePostedData(posted_obj);
-    console.log("parsedForCSV:", parsedForRawCSV);
+        res.send(req.body); //fire back, closes cxxn.
 
-    //.then( forRealAppend:Raw ) //aka, save/append to mega-csv
-    const rawResult = appendToCSV(path.join(__dirname + '/../data/raw.csv'), [parsedForRawCSV]);
+        //Continue parsing..
+        //.then( preParse )
+        var posted_obj = {};
+        var posted_str = '';
+        try{
+            if( typeof req.body.stats == "string") posted_str = req.body.stats; // .body.substring(1,req.body.length-1)
+            else posted_str =  Object.keys( req.body )[0]; //Alternate, if req.body.stats isn't set?
+            posted_obj = JSON.parse( posted_str );
+        }catch(error) {
+            console.log("JSON Parsing error:", req.body , error);
+        }
 
-    //.then( forRealParse:Grouped )
-    const groupedCSV = groupPerformance(parsedForRawCSV);
-    //.then( forRealAppend:Grouped ) //aka, save/append to mega-csv
-    const groupResult = appendToCSV(path.join(__dirname + '/../data/group.csv'), [groupedCSV]);
+        //.then( saveJSON ) //backup
+        let datestring = new Date().toJSON().replace('T','-').replace('Z','').replace(/:/g,'_'); // 2018-04-19-22:03:17.905500
+        let json_filename = path.join(__dirname + '/../log/ajax-'+datestring+'.log');
+        fs.writeFile(json_filename, posted_str, function (err, stat) {
+            if (err) throw err;
+            console.log('file saved');
+        });
 
-    //.catch( next ) //error handle?
+    //PHP: $file_result=file_put_contents('../log/ajax-'.$datestring.'.log',$ajax_post);
 
-    console.log("file saves:", rawResult, groupResult )
+        //.then( forRealParse:Raw )
+        const parsedForRawCSV = parsePostedData(posted_obj);
+        console.log("parsedForCSV:", parsedForRawCSV);
+
+        //.then( forRealAppend:Raw ) //aka, save/append to mega-csv
+        const rawResult = appendToCSV(path.join(__dirname + '/../data/raw.csv'), [parsedForRawCSV]);
+
+        //.then( forRealParse:Grouped )
+        const groupedCSV = groupPerformance(parsedForRawCSV);
+        //.then( forRealAppend:Grouped ) //aka, save/append to mega-csv
+        const groupResult = appendToCSV(path.join(__dirname + '/../data/group.csv'), [groupedCSV]);
+
+        //.catch( next ) //error handle?
+
+        console.log("file saves:", rawResult, groupResult )
 
 
 
-  });
+    });
 };
 
 /**
